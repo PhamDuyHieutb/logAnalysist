@@ -53,7 +53,7 @@ object TestLog{
     val re = sqlClickResult.reduceByKey((v1,v2) => {
       var a1 = v1.split("_")
       var a2 = v2.split("_")
-       a1(0).toInt+a2(0).toInt +"_"+a1(1).toInt+a2(1).toInt
+      (a1(0).toInt+a2(0).toInt) +"_"+(a1(1).toInt+a2(1).toInt)
     }).map((a) =>{
       var p = a._2.split("_")
       var result = (p(0).toInt)*1.0/(p(0).toInt+p(1).toInt)
