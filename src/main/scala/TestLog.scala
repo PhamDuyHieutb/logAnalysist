@@ -11,10 +11,10 @@ object TestLog{
 
     def Combine(event1:String,event2: String):String ={
         (event1,event2) match {
-            case ("c","c") => event1
-            case ("i","i") => event1
-            case ("c","i") => ("ci")
-            case ("i","c") => ("ci")
+            case ("true","true") => event1
+            case ("false","false") => event1
+            case ("true","false") => ("ci")
+            case ("false","true") => ("ci")
             case ("ci",_) => event1
             case (_,"ci") => event2
         }
@@ -64,7 +64,7 @@ object TestLog{
 
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
-    val reClick = sqlClickResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getString(3))).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
+    val reClick = sqlClickResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString)).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick.map(a => a._2).sum()
     val ctr = reClick.map(a => (a._1,a._2/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part5")
 
