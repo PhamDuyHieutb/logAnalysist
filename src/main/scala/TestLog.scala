@@ -20,6 +20,8 @@ object TestLog{
         }
 
     }
+  
+
 
 
   def main(args: Array[String]) {
@@ -29,9 +31,8 @@ object TestLog{
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
-
 //    val spark = SparkSession.builder().master("local").appName("Log Query").enableHiveSupport().getOrCreate()
-    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/*")
+    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/{parquet_logfile_at_21h_00.snap,parquet_logfile_at_21h_05.snap,parquet_logfile_at_21h_10.snap}")
 
 
 
@@ -44,8 +45,10 @@ object TestLog{
     val sqlClickResult = sqlTrue.map(e => ((e.getLong(0), e.getInt(1)), ("c",e.getLong(2))))
     val sqlImpressionResult = sqlFalse.map(e => ((e.getLong(0), e.getInt(1)),("i",e.getLong(2))))
 
-
-    val a = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/")
+//    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
+    val reClick = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).mapValues{a: (String,Long)=> a._1}.map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
+    val dem = reClick.map(a => a._2).sum()
+    val ctr = reClick.map(a => (a._1,a._2/dem)).saveAsTextFile("/user/hieupd/logAnalysist/part2")
 
   }
 }
