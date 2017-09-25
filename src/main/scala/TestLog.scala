@@ -32,7 +32,7 @@ object TestLog{
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
 //    val spark = SparkSession.builder().master("local").appName("Log Query").enableHiveSupport().getOrCreate()
-    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/{parquet_logfile_at_21h_00.snap,parquet_logfile_at_21h_05.snap,parquet_logfile_at_21h_10.snap}").repartition(10)
+    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/{parquet_logfile_at_21h_00.snap,parquet_logfile_at_21h_05.snap,parquet_logfile_at_21h_10.snap,parquet_logfile_at_21h_15.snap,parquet_logfile_at_21h_20.snap,parquet_logfile_at_21h_25.snap}").repartition(10)
 
 
 
