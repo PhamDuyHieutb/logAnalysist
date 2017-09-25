@@ -9,12 +9,12 @@ import org.apache.spark.sql.functions._
 
 object TestLog{
 
-    def Combine(event1:(String, Long),event2: (String,Long)):(String,Long) ={
-        (event1._1,event2._1) match {
+    def Combine(event1:String,event2: String):String ={
+        (event1,event2) match {
             case ("c","c") => event1
             case ("i","i") => event1
-            case ("c","i") => ("ci",event2._2)
-            case ("i","c") => ("ci",event1._2)
+            case ("c","i") => ("ci")
+            case ("i","c") => ("ci")
             case ("ci",_) => event1
             case (_,"ci") => event2
         }
@@ -42,15 +42,16 @@ object TestLog{
     val sql= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log ").rdd
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
-    val sqlClickResult = sql.map(e => {
-    var v="0_1"
-    if (e.getBoolean(3)) v ="1_1"
-  ((e.getLong(0), e.getInt(1),(e.getLong(2)/900000)*900000), (v))
-})
-//    val sqlImpressionResult = sql.map(e => ((e.getLong(0), e.getInt(1),(e.getLong(2)/900000)*900000),(0)))
+//    val sqlClickResult = sql.map(e => {
+//    var v="0"
+//    if (e.getBoolean(3)) v ="1"
+//  ((e.getLong(0), e.getInt(1),(e.getLong(2)/900000)*900000), (v))
+//})
+    val sqlClickResult = sql.filter(e => e.getBoolean(3))
+    val sqlImpressionResult = sql.filter(e => !e.getBoolean(3))
 
 
-    val re = sqlClickResult.reduceByKey((v1,v2) => {
+   /* val re = sqlClickResult.reduceByKey((v1,v2) => {
       var a1 = v1.split("_")
       var a2 = v2.split("_")
       (a1(0).toInt+a2(0).toInt) +"_"+(a1(1).toInt+a2(1).toInt)
@@ -58,12 +59,14 @@ object TestLog{
       var p = a._2.split("_")
       var result = (p(0).toInt)*1.0/(p(0).toInt+p(1).toInt)
        (a._1,result)
-    } ).saveAsTextFile("/user/hieupd/logAnalysist/part4")
+    } ).saveAsTextFile("/user/hieupd/logAnalysist/part5")
+    */
+
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
-//    val reClick = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).mapValues{a: (String,Long)=> a._1}.map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
-//    val dem = reClick.map(a => a._2).sum()
-//    val ctr = reClick.map(a => (a._1,a._2/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part2")
+    val reClick = sqlClickResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getString(3))).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
+    val dem = reClick.map(a => a._2).sum()
+    val ctr = reClick.map(a => (a._1,a._2/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part5")
 
   }
 }
