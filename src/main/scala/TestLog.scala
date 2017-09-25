@@ -64,7 +64,7 @@ object TestLog{
 
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
-    val reClick = sqlClickResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString)).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
+    val reClick = sqlImpressionResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString)).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick.map(a => a._2).sum()
     val ctr = reClick.map(a => (a._1,a._2/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part5")
 
