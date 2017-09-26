@@ -39,8 +39,9 @@ object TestLog{
     logdata.registerTempTable("log")
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
-    val sql= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log limit 15000")
-
+    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true limit 30")
+    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false")
+    val sql = sqlClickResult.join(sqlImpressionResult)
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
 //    val sqlClickResult = sql.map(e => {
@@ -48,8 +49,8 @@ object TestLog{
 //    if (e.getBoolean(3)) v ="1"
 //  ((e.getLong(0), e.getInt(1),(e.getLong(2)/900000)*900000), (v))
 //})
-    val sqlClickResult = sql.rdd.filter(e => e.getBoolean(3))
-    val sqlImpressionResult = sql.rdd.filter(e => !e.getBoolean(3))
+//    val sqlClickResult = sql.rdd.filter(e => e.getBoolean(3))
+//    val sqlImpressionResult = sql.rdd.filter(e => !e.getBoolean(3))
 
 
    /* val re = sqlClickResult.reduceByKey((v1,v2) => {
@@ -65,9 +66,11 @@ object TestLog{
 
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
-    val reClick = sqlImpressionResult.union(sqlClickResult).map(a => ((a.getLong(1),a.getInt(2),((a.getLong(3)*0.001)/900)*900),a.getBoolean(4).toString)).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
-    val dem = reClick.map(a => a._2).sum()
-    val ctr = reClick.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part7")
-    sql.write.mode(saveMode = "overwrite").format("com.databricks.spark.csv").save("/user/hieupd/logAnalysist/part7/sqlSelect")
+    val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(1),a.getInt(2),(a.getLong(3)/900000)*900000),a.getBoolean(4).toString))
+     val reClick2 = reClick.reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
+    val dem = reClick2.map(a => a._2).sum()
+    val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part8")
+    sql.write.mode(saveMode = "overwrite").format("com.databricks.spark.csv").save("/user/hieupd/logAnalysist/part8/sqlSelect")
+    reClick.saveAsTextFile("/user/hieupd/logAnalysist/part8/filterTime")
   }
 }
