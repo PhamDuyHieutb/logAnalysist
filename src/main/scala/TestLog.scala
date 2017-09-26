@@ -39,7 +39,7 @@ object TestLog{
     logdata.registerTempTable("log")
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
-    val sql= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log limit 10000")
+    val sql= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log limit 15000")
 
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
