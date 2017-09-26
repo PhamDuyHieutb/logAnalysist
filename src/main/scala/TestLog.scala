@@ -39,8 +39,8 @@ object TestLog{
     logdata.registerTempTable("log")
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
-    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true ")
-    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false")
+    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999 ")
+    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false and and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999")
     val sql = sqlClickResult.join(sqlImpressionResult)
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
@@ -69,8 +69,7 @@ object TestLog{
     val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString))
      val reClick2 = reClick.reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick2.map(a => a._2).sum()
-    val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part8")
-    sql.write.mode(saveMode = "overwrite").format("com.databricks.spark.csv").save("/user/hieupd/logAnalysist/part8/sqlSelect")
-    reClick.saveAsTextFile("/user/hieupd/logAnalysist/part8/filterTime")
+    val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part9")
+    reClick.saveAsTextFile("/user/hieupd/logAnalysist/part9/filterTime")
   }
 }
