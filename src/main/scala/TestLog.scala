@@ -69,7 +69,7 @@ object TestLog{
     val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString))
      val reClick2 = reClick.reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick2.map(a => a._2).sum()
-    val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part10")
-    reClick.reduceByKey((a,b) => a +","+ b ).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part10/filterTime")
+    val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part11")
+    reClick.reduceByKey((a,b) => a +","+ b ).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part11/filterTime")
   }
 }
