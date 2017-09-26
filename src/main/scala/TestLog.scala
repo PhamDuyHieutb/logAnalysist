@@ -32,14 +32,14 @@ object TestLog{
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
 //    val spark = SparkSession.builder().master("local").appName("Log Query").enableHiveSupport().getOrCreate()
-    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/{parquet_logfile_at_21h_00.snap,parquet_logfile_at_21h_05.snap,parquet_logfile_at_21h_10.snap,parquet_logfile_at_21h_15.snap,parquet_logfile_at_21h_20.snap,parquet_logfile_at_21h_25.snap}").repartition(10)
+    val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/{parquet_logfile_at_21h_00.snap,parquet_logfile_at_21h_05.snap,parquet_logfile_at_21h_10.snap,parquet_logfile_at_21h_15.snap}").repartition(10)
 
 
 
     logdata.registerTempTable("log")
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
-    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true limit 30")
+    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true ")
     val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false")
     val sql = sqlClickResult.join(sqlImpressionResult)
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
@@ -66,7 +66,7 @@ object TestLog{
 
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
-    val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(1),a.getInt(2),(a.getLong(3)/900000)*900000),a.getBoolean(4).toString))
+    val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString))
      val reClick2 = reClick.reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick2.map(a => a._2).sum()
     val ctr = reClick2.map(a => (a._1,a._2*1.0/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part8")
