@@ -40,7 +40,7 @@ object TestLog{
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
     val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999 ")
-    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false and and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999")
+    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999")
     val sql = sqlClickResult.join(sqlImpressionResult)
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
