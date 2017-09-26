@@ -28,8 +28,8 @@
       <file leaf-file-name="TestLog.scala" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/TestLog.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="64" column="0" lean-forward="true" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+            <state relative-caret-position="480">
+              <caret line="67" column="117" lean-forward="false" selection-start-line="67" selection-start-column="117" selection-end-line="67" selection-end-column="117" />
               <folding>
                 <element signature="e#0#44#0" expanded="true" />
               </folding>
@@ -525,8 +525,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/TestLog.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="64" column="0" lean-forward="true" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+        <state relative-caret-position="480">
+          <caret line="67" column="117" lean-forward="false" selection-start-line="67" selection-start-column="117" selection-end-line="67" selection-end-column="117" />
           <folding>
             <element signature="e#0#44#0" expanded="true" />
           </folding>
