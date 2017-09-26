@@ -40,7 +40,7 @@ object TestLog{
 //    val stringify = udf((vs: Seq[BigInt]) => vs.mkString(",") )
 
     val sql= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log limit 1000")
-    sql.write.format("com.databricks.spark.csv").save("/user/hieupd/logAnalysist/part6/sqlSelect")
+
 //    sql.write.format("com.databricks.spark.csv").csv("/home/hadoop/result.csv")
 //    val stringify = udf( (time_create:BigInt,cookie_create:BigInt) => castToString(time_create,cookie_create) )
 //    val sqlClickResult = sql.map(e => {
@@ -68,6 +68,6 @@ object TestLog{
     val reClick = sqlImpressionResult.union(sqlClickResult).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString)).reduceByKey(Combine).map(a => (a._2,1)).reduceByKey((a1,a2)=> a1+a2)
     val dem = reClick.map(a => a._2).sum()
     val ctr = reClick.map(a => (a._1,a._2/dem)).repartition(1).saveAsTextFile("/user/hieupd/logAnalysist/part6")
-
+    sql.write.mode(saveMode = "overwrite").format("com.databricks.spark.csv").save("/user/hieupd/logAnalysist/part6/sqlSelect")
   }
 }
