@@ -31,15 +31,13 @@ object TestLog{
     val sc = new SparkContext(sparkConf)
     val sqlContext = new org.apache.spark.sql.SQLContext(sc)
 
-//    val spark = SparkSession.builder().master("local").appName("Log Query").enableHiveSupport().getOrCreate()
+
     val logdata = sqlContext.read.parquet("/data/Parquet/AdnLog/2017_09_19/*").repartition(10)
 
 
 
     logdata.registerTempTable("log")
-//
-//    val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999 ")
-//    val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false and time_group.time_create >=1505829600000 and time_group.time_create <1505830499999")
+
     val sqlClickResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = true")
     val sqlImpressionResult= sqlContext.sql("select guid,bannerId,time_group.time_create,click_or_view from log where click_or_view = false")
     val sql = sqlClickResult.join(sqlImpressionResult)
@@ -54,17 +52,7 @@ object TestLog{
 //    val sqlImpressionResult = sql.rdd.filter(e => !e.getBoolean(3))
 
 
-   /* val re = sqlClickResult.reduceByKey((v1,v2) => {
-      var a1 = v1.split("_")
-      var a2 = v2.split("_")
-      (a1(0).toInt+a2(0).toInt) +"_"+(a1(1).toInt+a2(1).toInt)
-    }).map((a) =>{
-      var p = a._2.split("_")
-      var result = (p(0).toInt)*1.0/(p(0).toInt+p(1).toInt)
-       (a._1,result)
-    } ).saveAsTextFile("/user/hieupd/logAnalysist/part5")
-    */
-
+   
 
 //    val re = sqlImpressionResult.union(sqlClickResult).reduceByKey(Combine).coalesce(1).saveAsTextFile("/user/hieupd/logAnalysist/part1")
     val reClick = sqlImpressionResult.rdd.union(sqlClickResult.rdd).map(a => ((a.getLong(0),a.getInt(1),(a.getLong(2)/900000)*900000),a.getBoolean(3).toString))
